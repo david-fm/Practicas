@@ -1,0 +1,7 @@
+*.csv
+*.xlsx
+*.pkl
+.DS_Store
+
+books/
+dominiopublico/

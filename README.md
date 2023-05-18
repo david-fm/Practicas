@@ -36,3 +36,15 @@ The process to get the values and to select the ns to be calculated in the entro
 ## File Description
 
 The file are made up of 2 parts, the first one is the id of the book and the second is the volume identifier, which goes from 0 to number_of_volumes - 1.
+
+# Using the library
+
+## First steps
+If its the first time you use this library you should download this file [here](https://www.bne.es/media/datosgob/bdh/dominiopublico/dominiopublico_csv-cp1252.zip) and unzip it in the folder web_scraping/dominiopublico
+<br>
+Then you should run main.py, this will create a file containing all the books that are manuscripts and the ones that are books. This will take a while.
+<br>
+<b>!</b> I you had already run the program then this step just run main.py, it will do everything for you.
+<br>
+Then you would be asked to continue, if so you have to enter the directory where the files will be saved, if not given, they will be saved in the directory books
+

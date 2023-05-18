@@ -1,3 +1,8 @@
+'''
+    This script contains the functions to download from the web https://www.bne.es/media/datosgob/bdh/dominiopublico/dominiopublico_csv-cp1252.zip
+    and concatenate them into one file to be able to manage it properly.
+'''
+
 import os
 import pandas as pd
 from tqdm import tqdm

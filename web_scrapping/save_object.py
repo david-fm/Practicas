@@ -1,3 +1,6 @@
+'''
+    This file contains the functions to save and load objects
+'''
 import pickle
 
 def save_object(obj, filename):

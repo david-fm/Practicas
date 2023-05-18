@@ -1,11 +1,18 @@
+'''
+This script is used to create the books from the data through the API
+and save them 
+https://datosabiertos.bne.es/dataset/biblioteca-digital-documentos-en-dominio-publico/
+'''
+
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import api
 from save_object import save_object, load_object
 import regex as re
 import json
 from tqdm import tqdm
 import requests
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from clean_text import clean_text
 from entropy import entropy
 
@@ -28,13 +35,6 @@ class Book:
     def __str__(self) -> str:
         return f"{self.title} - {self.author} - {self.date} - {self.origin_country} - {self.language} - {self.subject} - {self.genre} - {self.digital_version} - {self.ocr}"
 
-    def clean_book(self):
-        """Clean the book data"""
-        # TODO There could be many volumes of the same book
-        # TODO There could be books that are not understandable due to the OCR
-        # TODO There could be books that are not in Spanish
-        # Delete the string , fl. .*// from the author column
-        self.author = re.sub(r', [\- 0-9]*//', '//', self.author)
 
 
 class Library:
@@ -52,17 +52,18 @@ class Library:
         """Load books from api"""
         books = []
         for index, row in tqdm(api.get_data().iterrows()):
-            books.append(
-                Book(
-                row['Título'], 
-                row['Autor Personas'], 
-                row['Fecha de publicación'], 
-                row['País de publicación'], 
-                row['Lengua de publicación'], 
-                row['Tema'], 
-                row['Género/Forma'], 
-                row['version_digital'], 
-                row['texto_OCR']))
+            if row['Tipo de documento'] == 'Libro' or row['Tipo de documento'] == 'Manuscrito':
+                books.append(
+                    Book(
+                    row['Título'], 
+                    row['Autor Personas'], 
+                    row['Fecha de publicación'], 
+                    row['País de publicación'], 
+                    row['Lengua de publicación'], 
+                    row['Tema'], 
+                    row['Género/Forma'], 
+                    row['version_digital'], 
+                    row['texto_OCR']))
             
         return self(books)
     @classmethod
@@ -71,28 +72,29 @@ class Library:
         self.books = load_object("books.pkl")
         return self(self.books)
 
-    def clean_library(self):
-        """Clean the library data by:
-        - Deleting the books that are not in Spanish
-        - Deleting the books that are not in the same format
-        """
     def save_books(self):
         """Save books in pickle format"""
         save_object(self.books, "books.pkl")
     
-    def save_ocr_books(self):
-        """Save books that have a txt version in OCR"""
+    def save_ocr_books(self, directory='books', number_of_books=1000):
+        """Save books that have a txt version in OCR
+        Args:
+            directory (str, optional): Directory where the books will be saved. Defaults to 'books'.
+            number_of_books (int, optional): Number of books to save, if it is -1 it will download all dataset. Defaults to 1000.
+        """
+        if directory == '':
+            directory = 'books'
         counter = 0
         valid_books = []
         for book in tqdm(self.books):
             if book.ocr:
-                counter = self.getting_and_writing_books(book, counter, valid_books)
-                if counter == 1000:
+                counter = self.getting_and_writing_books(book, counter, valid_books, directory)
+                if counter == number_of_books or number_of_books == -1:
                     break
-        with open('books/metadata.json', 'w') as fp:
+        with open(f'{directory}/metadata.json', 'w') as fp:
             json.dump([book.__dict__ for book in tqdm(valid_books)], fp, indent=4)
                 
-    def getting_and_writing_books(self, book, counter, valid_books):
+    def getting_and_writing_books(self, book, counter, valid_books, directory):
         """"""
         book_urls = book.ocr.strip('* ').split(' ** ')
         book.number_of_volumes = len(book_urls)
@@ -109,7 +111,7 @@ class Library:
                 book.entropy = [entropy(text, n) for n in range(1, 19)]
 
                 # Save the book
-                with open(f'books/{counter}_{i}.txt', 'w') as fp:
+                with open(f'{directory}/{counter}_{i}.txt', 'w') as fp:
                     fp.write(text)
                 book.words = len(re.findall(r'\w+', text))
                 book.book_id = counter
@@ -120,10 +122,6 @@ class Library:
             counter += 1
         return counter
 
-    
-    def upload_to_one_drive(self):
-        """Upload the books to one drive"""
-        pass
 
             
 

@@ -2,6 +2,5 @@
 *.xlsx
 *.pkl
 .DS_Store
-
-books/
-dominiopublico/
+*txt
+metadata.json

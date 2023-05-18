@@ -23,10 +23,6 @@ def main():
         route = input("Please, specify the route where you want to save the books: ")
         route = route if route[-1] != '/' and route[-1] != '\\' else route[:-1]
         print("Downloading the books into the folder specified")
-        if not os.path.exists(route):
-            print("The folder does not exist")
-            print("Creating the folder")
-            os.makedirs(route)
         number_of_books = int(input("How many books do you want to download? Write -1 if you want to download all the books: "))
         library.save_ocr_books(route, number_of_books)
 

@@ -84,6 +84,10 @@ class Library:
         """
         if directory == '':
             directory = 'books'
+        if not os.path.exists(directory):
+            print("The folder does not exist")
+            print("Creating the folder")
+            os.makedirs(directory)
         counter = 0
         valid_books = []
         for book in tqdm(self.books):

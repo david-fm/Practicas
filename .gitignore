@@ -2,5 +2,4 @@
 *.xlsx
 *.pkl
 .DS_Store
-*txt
-metadata.json
+books/*

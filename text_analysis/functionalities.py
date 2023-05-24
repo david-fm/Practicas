@@ -12,13 +12,22 @@ def get_name(authors):
     author_name = author_name.split(" ")[0]
     return author_name
 
-def gender(name):
+def gender(name) -> str:
+    '''
+        Get through the api the gender of the person
+        :param name: name of the person
+        :return: None if the api limit gotten or the gender of the person
+        '''
     # return if the name is male or not
     import requests
-    # Get the first name
-    response = requests.get("https://api.genderize.io/?name=" + name + "&country_id=ES")
-    response_json = response.json()
-    return response_json['gender']
+    try:
+        # Get the first name
+        response = requests.get("https://api.genderize.io/?name=" + name + "&country_id=ES")
+        response_json = response.json()
+    
+        return response_json['gender']
+    finally:
+        return None
 
 def counting_males(csv):
     # Count how many males there are in the csv file
@@ -32,29 +41,41 @@ def counting_males(csv):
     print(dataframe.shape[0])
     print(women)
 
-'''if __name__ == "__main__":
+if __name__ == "__main__":
     # Test get_name function by saving a csv file with the name of all the authers 
     # in books/metadata.json
     import json
     import pandas
-    with open('books/metadata.json') as f:
+    with open('/Users/davidflorezmazuera/Library/CloudStorage/GoogleDrive-270191@student.pwr.edu.pl/Mi unidad/Spanish_V2/metadata.json') as f:
         data = json.load(f)
-    authors = []
+    # get the name of the authors and the corpus identifier
+    # the corpues identifier will be given as a list of the books 
+    # obtained from the union of the book_id and number_of_volumes
+
+    obtained_data = {}
     for book in data:
-        authors.append(get_name(book['author']))
+        obtained_data[book['book_id']] = (get_name(book['author']), book['number_of_volumes'])
     # get the gender of the authors and add it to the dataframe
-    genders = []
-    used_authors = []
-    for author in authors:
+
+    for_data_frame = {}
+    for key in obtained_data:
+        author = obtained_data[key][0]
         if author != '' and len(author)>2: 
             # if the author is not empty and its name is full (ex. is not 'M.') which is ambiguous
-            genders.append(gender(author))
-            used_authors.append(author)
+            author_gender = gender(author)
+            if not author_gender:
+                # if the api limit is reached
+                break
+            for i in range(obtained_data[key][1]):
+                idb = f'{key}_{i}'
+                for_data_frame[idb] = (author, author_gender)
+
+    # Create the dataframe from the dictionary
     dataframe = pandas.DataFrame()
-    dataframe['author'] = used_authors
-    dataframe['gender'] = genders
+    dataframe['book_id'] = [key for key in for_data_frame]
+    dataframe['author'] = [for_data_frame[key][0] for key in for_data_frame]
+    dataframe['gender'] = [for_data_frame[key][1] for key in for_data_frame]
     dataframe.to_csv("authors.csv")
 
-    # TODO Inform teacher about results
 '''
-counting_males("authors.csv")
+counting_males("authors.csv")'''

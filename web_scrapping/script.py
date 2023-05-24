@@ -31,11 +31,21 @@ class Book:
         self.book_id = None
         self.number_of_volumes = None
         self.entropy = None
-    
+
     def __str__(self) -> str:
         return f"{self.title} - {self.author} - {self.date} - {self.origin_country} - {self.language} - {self.subject} - {self.genre} - {self.digital_version} - {self.ocr}"
 
 
+    @classmethod
+    def from_json(self, title, author, date, origin_country,language, subject, genre, digital_version, ocr, words, book_id, number_of_volumes, entropy):
+        
+        book = self(title, author, date, origin_country,language, subject, genre, digital_version, ocr)
+        book.words = words
+        book.book_id = book_id
+        book.number_of_volumes = number_of_volumes
+        book.entropy = entropy
+        return book
+        
 
 class Library:
     def __init__(self, books: list):
@@ -71,6 +81,16 @@ class Library:
         """Load books from pickle format"""
         self.books = load_object("books.pkl")
         return self(self.books)
+
+    @classmethod
+    def from_books_path(self, path: str) -> "Library":
+        '''Load books from the path that contains the books in .txt format and the metadata.json file'''
+        books = []
+        with open(f'{path}/metadata.json') as json_file:
+            data = json.load(json_file)
+            for book in tqdm(data):
+                books.append(Book.from_json(book['title'], book['author'], book['date'], book['origin_country'], book['language'], book['subject'], book['genre'], book['digital_version'], book['ocr'], book['words'], book['book_id'], book['number_of_volumes'], book['entropy']))
+        return self(books)
 
     def save_books(self):
         """Save books in pickle format"""

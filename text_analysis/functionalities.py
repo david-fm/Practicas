@@ -26,7 +26,7 @@ def gender(name) -> str:
         response_json = response.json()
     
         return response_json['gender']
-    finally:
+    except:
         return None
 
 def counting_males(csv):

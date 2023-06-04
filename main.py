@@ -27,6 +27,7 @@ def main():
         number_of_books = int(input("How many books do you want to download? Write -1 if you want to download all the books: "))
         library.save_ocr_books(route, number_of_books)
         print("Cleaning the metadata of the books")
+        route = 'books' if route == '' else route
         metadata = route + '/metadata.json'
         with open(metadata, encoding = 'latin-1') as f:
             data = json.load(f)

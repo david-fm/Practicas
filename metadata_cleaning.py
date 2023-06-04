@@ -2,6 +2,7 @@
 # This patterns where optain by manual extraction from the metadata file
 
 import re
+from tqdm import tqdm
 
 def clean_authors(books):
     # Match centuries and remove them, they are represented as .S XVI
@@ -13,7 +14,7 @@ def clean_authors(books):
     info_between_brackets = re.compile('\(.*\)')
     extra_info = re.compile('-.*')
     # Cleaning the authors
-    for book in books:
+    for book in tqdm(books):
         authors = book['author']
         authors = authors.split("//")
 

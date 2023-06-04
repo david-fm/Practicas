@@ -109,17 +109,24 @@ class Library:
             print("Creating the folder")
             os.makedirs(directory)
         directory = directory if directory[-1] != '/' and directory[-1] != '\\' else directory[:-1]
-        counter = 0
-        valid_books = []
-        for book in tqdm(self.books):
-            if book.ocr:
-                counter = self.getting_and_writing_books(book, counter, valid_books, directory)
-                if counter == number_of_books or number_of_books == -1:
-                    break
+        
+
+        books = self.books[0:number_of_books]
+        from joblib import Parallel, delayed
+        valid_books=Parallel(n_jobs=-1)(delayed(self.getting_and_writing_books)(book, idx, directory) for idx, book in tqdm(enumerate(books)) if book.ocr)
+        
+        valid_books = [book for book in valid_books if book is not None]
+        valid_order_books = sorted(valid_books, key=lambda b: b.book_id)
+        # TODO set the book_id from 0 to n
+        for idx, book in enumerate(valid_order_books):
+            for i in range(0,book.number_of_volumes):
+                os.rename(f'{directory}/{book.book_id}_{i}.txt', f'{directory}/{idx}_{i}.txt')
+            book.book_id = idx
+
         with open(f'{directory}/metadata.json', 'w') as fp:
-            json.dump([book.__dict__ for book in tqdm(valid_books)], fp, indent=4)
+            json.dump([book.__dict__ for book in tqdm(valid_order_books)], fp, indent=4)
                 
-    def getting_and_writing_books(self, book, counter, valid_books, directory):
+    def getting_and_writing_books(self, book, counter, directory):
         """"""
         book_urls = book.ocr.strip('* ').split(' ** ')
         book.number_of_volumes = len(book_urls)
@@ -143,9 +150,8 @@ class Library:
                 valid = True
             
         if valid: 
-            valid_books.append(book)
-            counter += 1
-        return counter
+            return book 
+        return None
 
 
             

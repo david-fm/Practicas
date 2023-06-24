@@ -85,8 +85,9 @@ class Library:
     @classmethod
     def from_books_path(self, path: str) -> "Library":
         '''Load books from the path that contains the books in .txt format and the metadata.json file'''
+        print ("Loading books from path")
         books = []
-        with open(f'{path}/metadata.json') as json_file:
+        with open(path) as json_file:
             data = json.load(json_file)
             for book in tqdm(data):
                 books.append(Book.from_json(book['title'], book['author'], book['date'], book['origin_country'], book['language'], book['subject'], book['genre'], book['digital_version'], book['ocr'], book['words'], book['book_id'], book['number_of_volumes'], book['entropy']))
@@ -120,7 +121,10 @@ class Library:
         # TODO set the book_id from 0 to n
         for idx, book in enumerate(valid_order_books):
             for i in range(0,book.number_of_volumes):
-                os.rename(f'{directory}/{book.book_id}_{i}.txt', f'{directory}/{idx}_{i}.txt')
+                try:
+                    os.rename(f'{directory}/{book.book_id}_{i}.txt', f'{directory}/{idx}_{i}.txt')
+                except:
+                    pass
             book.book_id = idx
 
         with open(f'{directory}/metadata.json', 'w') as fp:
@@ -152,6 +156,27 @@ class Library:
         if valid: 
             return book 
         return None
+
+    def search(self, attribute: str, value) -> list:
+        """Search books that contain the query in the title or author
+        Args:
+            query (str): Query to search
+        Returns:
+            list: List of books that contain the query
+        """
+        type_of_attribute = type(getattr(self.books[0], attribute))
+        books = []
+        for book in self.books:
+            if type_of_attribute == list:
+                if value in getattr(book, attribute):
+                    books.append(book)
+            elif type_of_attribute == str:
+                if value == getattr(book, attribute):
+                    books.append(book)
+            elif type_of_attribute == int:
+                if int(value) == getattr(book, attribute):
+                    books.append(book)
+        return books
 
 
             

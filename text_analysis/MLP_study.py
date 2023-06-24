@@ -5,7 +5,7 @@ import pandas as pd
 from .tf_idf import tf_idf
 
 
-PATH = "path/to/your/data"
+PATH = "/Users/davidflorezmazuera/Library/CloudStorage/GoogleDrive-270191@student.pwr.edu.pl/Mi unidad/Spanish_V2"
 
 # Create a sequential model that has as input the vectorized text in a dict of 1000 words
 # and as output 2 classes (male and female)

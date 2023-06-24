@@ -1,8 +1,7 @@
 '''
     Implements Term Frequency - Inverse Term Frequency
 '''
-import pandas as pd
-import sklearn as sk
+
 import math 
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
@@ -18,9 +17,8 @@ def tf_idf(corpus):
         Output: tf-idf matrix
     '''
     vectorizer = TfidfVectorizer(stop_words=stop_words, max_features=1000)
-    X = vectorizer.fit_transform(corpus).toarray()
-    feauture_names = vectorizer.get_feature_names_out()
-    return feauture_names, X
+    X = vectorizer.fit_transform(corpus)
+    return X
 
 def computeTF(wordDict, doc):
     tfDict = {}
